@@ -1,10 +1,10 @@
-# ICATEL / TPCI Payphone — Firmware Reverse Engineering, Python Rewrite & Simulator
+# ICATEL / TPCI Payphone: Firmware Reverse Engineering, Python Rewrite & Simulator
 
 *[Leia em português](docs/pt-br/README.md)*
 
-Reverse engineering of `Icatel-43.17.bin` — the 8051 firmware of a 2004 Brazilian
+Reverse engineering of `Icatel-43.17.bin`, the 8051 firmware of a 2004 Brazilian
 card payphone (TPCI, *Telefone Público a Cartão Indutivo* per the TELEBRÁS
-standard, by ICATEL) — plus a faithful Python re-implementation, a didactic
+standard, by ICATEL), plus a faithful Python re-implementation, a didactic
 simplified engine, and a tkinter desktop simulator that looks like the real
 orelhão.
 
@@ -35,14 +35,14 @@ standards for card payphone support:
 |---|---|---|
 | **TPCI** | *Telefone Público a Cartão Indutivo* (card payphone) | 245-300-707 |
 | **CSA** | *Centro de Supervisão Automatizada* (automated supervision center, the remote billing/fault backend) | 245-300-701 / 245-300-709 |
-| **UT** | *Unidade de Tarifação* — the value, in local currency, of one charge pulse; equivalent to one credit | 245-300-707 |
+| **UT** | *Unidade de Tarifação*: the value, in local currency, of one charge pulse; equivalent to one credit | 245-300-707 |
 | **Junto de Entrada** | Exchange-side equipment (or the terminal itself) that emits the charge pulse to the TPCI | 245-300-707 |
 | **Método de Cobrança** | Billing method: the phone debits one card UT *first*, then grants the corresponding talk time | 245-300-707 |
 | **CAT** | *Comando de Atualização da Tabela* (tariff-table update command, CSA↔TPCI protocol) | 245-300-709 |
 
 In the code and docs, "UT" is reserved for the card's tariff credit
 (`credit_units` / `eng.units`), to avoid confusion with the firmware's
-internal "wait units" — the `0x7B6A` timing-loop ticks (see
+internal "wait units", the `0x7B6A` timing-loop ticks (see
 `Timers.wait_units`), which have nothing to do with billing.
 
 ### Hardware cross-reference: the UCI/100 board
@@ -80,13 +80,13 @@ that board's connectors and configuration jumpers, redrawn here in ASCII
                                             +-----------------+
 ```
 
-* **CN4** — the A/B telephone-line terminal block (9 pins).
-* **ST4** (jumper, positions 1-4) — modem transmit power: ST4-A −9 dBm,
+* **CN4**: the A/B telephone-line terminal block (9 pins).
+* **ST4** (jumper, positions 1-4): modem transmit power: ST4-A −9 dBm,
   ST4-B −12 dBm, ST4-C −15 dBm, ST4-D −18 dBm, ST4-E −21 dBm.
-* **ST3** — dialing mode: jumper present = DTMF, removed = decadic (pulse).
-* **ST1** + **ST2-A**/**ST2-B** — charge-pulse signaling select: 12 kHz tone
+* **ST3**: dialing mode: jumper present = DTMF, removed = decadic (pulse).
+* **ST1** + **ST2-A**/**ST2-B**: charge-pulse signaling select: 12 kHz tone
   vs. line-polarity inversion.
-* **CH1** — the internal configuration button; pressing it while lifting the
+* **CH1**: the internal configuration button; pressing it while lifting the
   handset opens the Counter (UT) / Test / Installation menu described in the
   standard's flowchart annex.
 
@@ -167,15 +167,15 @@ like that, so none of it is reproduced here as fact.
   (`0x0771`) before bumping 16-bit unit counters (`0x009E/0x009F`); credit pool
   polled by `0x3B20`; card runs dry → phase 7 → `FAVOR DESLIGAR` → hang-up.
 * **Easter egg of the build**: `0x0DC9` (`PUSH ACC; MOV A,#1; RRC A; POP; RET`)
-  returns carry=1 unconditionally — every feature-gate branch after it is dead
+  returns carry=1 unconditionally, every feature-gate branch after it is dead
   code in this build.
 * **Quirk**: the command mailbox at XDATA `0x0708` is mirrored to **port P1**
-  on every write (`0x415D`), while P1.7 doubles as the I²C SDA pin — the board
+  on every write (`0x415D`), while P1.7 doubles as the I²C SDA pin, the board
   muxes the pin in hardware.
 
 ---
 
-## `icatel_4317_reimplementation.py` — the faithful rewrite
+## `icatel_4317_reimplementation.py`: the faithful rewrite
 
 A runnable Python model of the firmware. Every routine carries the real 8051
 disassembly as a comment, then explains what it does. Examples:
@@ -187,16 +187,16 @@ def tick_call_clock(self) -> None:
 
 Structure:
 
-* `Memory` — XDATA + memory-mapped I/O model (LCD window, latches, PCON idle).
-* `Timers` / `timer0_isr` — the 953-cycle tick and the `0x26.3` flag contract.
-* `I2cEeprom` — bit-banged 24Cxx driver (`0x8050` read byte, `0x843E` read block,
+* `Memory`: XDATA + memory-mapped I/O model (LCD window, latches, PCON idle).
+* `Timers` / `timer0_isr`: the 953-cycle tick and the `0x26.3` flag contract.
+* `I2cEeprom`: bit-banged 24Cxx driver (`0x8050` read byte, `0x843E` read block,
   `0x85F4` page write with tWr ack-poll burst).
-* `Datastore` — the protected-variable system (`0x7D56` block select,
+* `Datastore`: the protected-variable system (`0x7D56` block select,
   `0x7D9D` additive checksum, `0x7DAF` verify, `0x7DC3` EEPROM rewrite).
-* `Mailbox` — the `0x0708` command byte + P1 mirror + the `0x40EA` LFSR mixer.
-* `Lcd` — both LCD interfaces, DDRAM cursor model, custom accent charset.
-* `Serial` — the `0x4264` frame protocol (9 start codes, CRC-16, REN flow control).
-* `Payphone` — the state machine: `reset()`, `dispatch()`, state handlers,
+* `Mailbox`: the `0x0708` command byte + P1 mirror + the `0x40EA` LFSR mixer.
+* `Lcd`: both LCD interfaces, DDRAM cursor model, custom accent charset.
+* `Serial`: the `0x4264` frame protocol (9 start codes, CRC-16, REN flow control).
+* `Payphone`: the state machine: `reset()`, `dispatch()`, state handlers,
   `set_tone_profile()` (`0x0D87`), `seize_line_and_dial()` (`0x0617`),
   `tick_call_clock()` (`0x4DE2` + metering), `hang_up_release_line()` (`0x073C`),
   CMT download arm/check (`0x103E`/`0x1064`).
@@ -218,7 +218,7 @@ python3 icatel_4317_reimplementation.py
 
 ---
 
-## `simple_payphone.py` — the didactic engine
+## `simple_payphone.py`: the didactic engine
 
 Same observable behavior, one readable state machine:
 
@@ -226,7 +226,7 @@ Same observable behavior, one readable state machine:
 IDLE ──off-hook──> DIAL_TONE ──4+ digits──> CONNECTED ──credit==0 / on-hook──> IDLE
 ```
 
-* No EEPROM, no CRC, no banked memory — just the state machine, the digit
+* No EEPROM, no CRC, no banked memory: just the state machine, the digit
   buffer (11 max, `*` clears), the per-second clock (mod-60) and the
   1-unit-per-6-seconds tariff.
 * Phase codes mirror the firmware (`2` waiting, `3` connected, `4` dialing,
@@ -236,7 +236,7 @@ IDLE ──off-hook──> DIAL_TONE ──4+ digits──> CONNECTED ──cred
 
 ---
 
-## `icatel_4317_simulator.py` — the simulator
+## `icatel_4317_simulator.py`: the simulator
 
 Tkinter + ttk desktop app styled after the Tropical/orelhão shell:
 steel-blue body, yellow stripe, green 2×40 LCD, metal 4×3 keypad with orange
@@ -268,6 +268,12 @@ Status bar shows live engine state:
 `GANCHO | CARTÃO | CRÉDITO: n unid | GASTO: n | fase | estado`
 (phase/estado mirror firmware `0x0013`/`0x076E`).
 
+### Screenshots
+
+| Idle, no card, out of service | Call in progress, card ran out of credit |
+|---|---|
+| ![Simulator idle, "FORA DE OPERACAO"](assets/TPCI-sim-1.png) | ![Simulator mid-call, "EM CHAMADA" / "CARTAO SEM CREDITO"](assets/TPCI-sim-2.png) |
+
 ### A full call
 
 1. Insert the card (click it). Off-hook.
@@ -289,14 +295,14 @@ Linux `sudo apt install python3-tk`). No third-party packages.
 
 ## How the RE was done (method)
 
-1. **Structure** — `r2 -a 8051` auto-analysis, vector table decoding, byte-level
+1. **Structure**: `r2 -a 8051` auto-analysis, vector table decoding, byte-level
    cross-checks of every quoted instruction.
-2. **Parallel scouting** — four read-only agents mapped disjoint regions
+2. **Parallel scouting**: four read-only agents mapped disjoint regions
    (main loop / serial+download / display / EEPROM+checksums), each returning
    byte-verified facts with `[INFERENCE]` markers.
-3. **Cross-reference** — the sibling `Tp2k_dump.src` (DIS8051 listing of a
+3. **Cross-reference**: the sibling `Tp2k_dump.src` (DIS8051 listing of a
    *different* build, 37 693 bytes differ) used only to corroborate code shape.
-4. **Rewrite** — every quoted asm snippet in the Python was byte-checked against
+4. **Rewrite**: every quoted asm snippet in the Python was byte-checked against
    the image (`75 8C FC/75 8A 47` @`0x1B9A`, `SETB 0x26.3` @`0x1ECD`, ljmp
    table @`0x0277`, strings at `0x8AC4`+ …).
 
@@ -305,8 +311,8 @@ Linux `sudo apt install python3-tk`). No third-party packages.
 * `simple_payphone.py` intentionally drops the EEPROM/protocol/banked layers.
 * The faithful engine models the state machine, datastore, I²C and LCD
   contracts, but not cycle-exact timing or the analog line interface.
-* Crystal (11.0592 MHz) and nominal baud (9600 from TH1=`0xFA`) are `[INFERENCE]`
-  — the only standard-rate reload value in the image.
+* Crystal (11.0592 MHz) and nominal baud (9600 from TH1=`0xFA`) are `[INFERENCE]`,
+  the only standard-rate reload value in the image.
 
 ---
 
@@ -316,5 +322,5 @@ The Python code in this repository (`icatel_4317_reimplementation.py`,
 `simple_payphone.py`, `icatel_4317_simulator.py`) is released under the
 [MIT License](LICENSE). This does **not** cover `Icatel-43.17.bin` itself
 (the original firmware dump, quoted here only for analysis) or the
-disassembly/strings files derived byte-for-byte from it — those remain the
+disassembly/strings files derived byte-for-byte from it; those remain the
 property of ICATEL / the original manufacturer.
