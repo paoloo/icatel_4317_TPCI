@@ -282,3 +282,17 @@ Dependências: Python ≥ 3.9 com tkinter (padrão no macOS/Windows; no Linux
 * O cristal (11,0592 MHz) e o baud nominal (9600, de TH1=`0xFA`) são
   `[INFERENCE]` — o único valor de recarga de taxa padrão presente na
   imagem.
+* A captura de tela da GUI no macOS foi bloqueada por permissões do sistema
+  durante o desenvolvimento; a estilização visual foi verificada por
+  inspeção da árvore de widgets.
+
+---
+
+## Licença
+
+O código Python deste repositório (`icatel_4317_reimplementation.py`,
+`simple_payphone.py`, `icatel_4317_simulator.py`) é distribuído sob a
+[Licença MIT](../../LICENSE). Isso **não** cobre o `Icatel-43.17.bin` em si
+(o dump original do firmware, citado aqui apenas para fins de análise) nem
+os arquivos de disassembly/strings derivados byte a byte dele — esses
+permanecem propriedade da ICATEL / do fabricante original.

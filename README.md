@@ -253,3 +253,16 @@ Linux `sudo apt install python3-tk`). No third-party packages.
   contracts, but not cycle-exact timing or the analog line interface.
 * Crystal (11.0592 MHz) and nominal baud (9600 from TH1=`0xFA`) are `[INFERENCE]`
   — the only standard-rate reload value in the image.
+* The macOS screenshot of the GUI was blocked by OS permissions during
+  development; visual styling was verified via widget-tree inspection.
+
+---
+
+## License
+
+The Python code in this repository (`icatel_4317_reimplementation.py`,
+`simple_payphone.py`, `icatel_4317_simulator.py`) is released under the
+[MIT License](LICENSE). This does **not** cover `Icatel-43.17.bin` itself
+(the original firmware dump, quoted here only for analysis) or the
+disassembly/strings files derived byte-for-byte from it — those remain the
+property of ICATEL / the original manufacturer.
