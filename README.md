@@ -3,10 +3,10 @@
 *[Leia em português](docs/pt-br/README.md)*
 
 Reverse engineering of `Icatel-43.17.bin` — the 8051 firmware of a 2004 Brazilian
-card payphone (TPCI, *Telefone Público a Cartão Indutivo* — the official TELEBRÁS
-term, see [Official terminology](#official-terminology-telebrás-standards) below —
-by ICATEL) — plus a faithful Python re-implementation, a didactic simplified
-engine, and a tkinter desktop simulator that looks like the real orelhão.
+card payphone (TPCI, *Telefone Público a Cartão Indutivo* per the TELEBRÁS
+standard, by ICATEL) — plus a faithful Python re-implementation, a didactic
+simplified engine, and a tkinter desktop simulator that looks like the real
+orelhão.
 
 All analysis was done with **radare2** (`r2 -a 8051`) the full disassembly is saved in [Icatel-43.17.r2.asm](Icatel-43.17.r2.asm).
 
@@ -89,64 +89,62 @@ that board's connectors and configuration jumpers, redrawn here in ASCII
   handset opens the Counter (UT) / Test / Installation menu described in the
   standard's flowchart annex.
 
-None of this is visible from the firmware image alone — it is a genuine
-cross-check from the official documentation, not an `[INFERENCE]`.
+None of it comes from the firmware image itself — it's a cross-check
+against the standard, not an `[INFERENCE]`.
 
 ### Cross-reference: old personal research notes
 
-I did my own hardware/firmware research on a *related but different* ICATEL
-unit (model 5000c/1) about 22 years ago, when I had physical access to a
-phone and a firmware dump I'd labeled version "46.17" — not this project's
-`43.17`. Several of those old software-level notes check out byte-for-byte
-against `icatel_4317_strings.txt`, which is worth recording since it
-corroborates my own old observation that ICATEL units are "95%+ similar"
-across models/firmware revisions:
+I did my own hardware/firmware research on a related but different ICATEL
+unit (model 5000c/1) about 22 years ago, with physical access to a phone
+and a firmware dump I'd labeled version "46.17" — not this project's
+`43.17`. Several of those old notes check out byte-for-byte against
+`icatel_4317_strings.txt`, which backs up something I already suspected
+back then: ICATEL units really are "95%+ similar" across models and
+firmware revisions.
 
-* **Self-test order matches exactly.** I'd noted a boot self-test sequence
-  "eeprom, ram, teclado, display, matriz (unidentified), tabela E2P, leitora
-  de cartões, modem", each returning an OK/failure message.
-  `icatel_4317_strings.txt` has the identical sequence, in the same order,
-  with matching OK/failure string pairs (`TESTANDO EEPROM`/`EEPROM
-  OK`/`FALHA EEPROM` … `TESTANDO MATRIZ`/`MATRIZ OK`/`FALHA NA MATRIZ` …
-  `TESTANDO E2P TAB` … `TESTANDO LEITORA` … `TESTANDO MODEM`). I couldn't
-  identify what "matriz" tests back then; this image confirms the stage is
-  real but still doesn't resolve its target — most likely the keypad's
-  row/column scan matrix, distinct from the `TECLADO`/`TECLE` keypress
-  check, but that's an `[INFERENCE]`, not a byte-verified fact.
-* **Technician menu strings match.** The RESET-button technician menu I'd
-  documented (`ID TECNICO`, `TAB.TARIFACAO`, `F.TARIFACAO`/`AUTOTARIFADO`,
-  `NUMERO SERIE`, `TERMINAL SSTP`, `TERMINAL TPCI`, `ATIVACAO`/`DESATIVACAO`)
-  lines up with real strings in this image: `IDENT.TÉCNICO`, `TÉCNICO
-  INVÁLIDO`, `TAB.TARIFAÇÃO`, `F.TARIFAÇÃO`, `AUTOTARIFADO`, `NUMERO SÉRIE`,
-  `TERMINAL SSTP`, `TERMINAL TPCI`, `DESATIVAÇÃO OK`, `INSTALAÇÃO OK`.
-* **The phone calls the CSA "SSTP" internally.** Every reference to the
-  supervision backend in the LCD strings says `SSTP`/`SSTP OCUPADO`, never
-  `CSA` — worth knowing since this repo (and the TELEBRÁS standards) use
-  "CSA" throughout.
-* **Billing-mode names exist as real strings**, matching the 4-value
-  tariff-mode set I'd recorded from the serial-number scheme: `DECADICA`,
-  `DTMF`, `INVERSÃO`, `12 KHz`, `AUTO-DDD`, `AUTOTARIFADO`. This image also
-  has a `16 KHz` string I hadn't seen before — a revision difference, not a
-  contradiction.
-* **The door-open message is real**: `PORTA ABERTA` is a verbatim string
-  here, matching what I'd noted back then (opening the door with the lock
-  still engaged displays that message) — and confirming there is *no*
-  3-minute alarm timer, contrary to a "myth" I'd already debunked at the
-  time.
-* **A wording gap versus the official standard**: TELEBRÁS 245-300-707
-  §8.21(i) mandates the exact LCD text `FORA DE SERVIÇO` for the
-  out-of-service state; this firmware's actual string is `FORA DE OPERAÇÃO`
-  — a real (harmless) deviation from the standard's letter.
-* **Hardware difference, not a match**: I'd recorded a 2×16 LCD (Solomon,
-  no backlight) on the 5000c/1; this project's own byte-verified DDRAM
-  addressing (`0x80`/`0xC0`, 40-column line stride) makes the 43.17 unit's
-  display 2×40 — the two ICATEL units differ here, they don't corroborate
-  each other.
+The boot self-test order is one match. I'd written down "eeprom, ram,
+teclado, display, matriz (unidentified), tabela E2P, leitora de cartões,
+modem," each stage returning an OK/failure message. `icatel_4317_strings.txt`
+has the same sequence in the same order, with matching string pairs
+(`TESTANDO EEPROM`/`EEPROM OK`/`FALHA EEPROM` … `TESTANDO MATRIZ`/`MATRIZ
+OK`/`FALHA NA MATRIZ` … `TESTANDO E2P TAB` … `TESTANDO LEITORA` …
+`TESTANDO MODEM`). I never figured out what "matriz" tests, and this image
+doesn't settle it either; my best guess is the keypad's row/column scan
+matrix, separate from the `TECLADO`/`TECLE` keypress check, but that's an
+`[INFERENCE]`, not something byte-verified.
 
-My old hardware teardown notes (specific EPROM/SRAM/modem/RTC part numbers,
-crystal frequencies, PCB switch wiring) describe the *5000c/1*'s physical
-board and aren't something a firmware byte dump can confirm or deny for the
-*43.17* unit, so they're deliberately not reproduced here as fact.
+The technician menu strings match too. `ID TECNICO`, `TAB.TARIFACAO`,
+`F.TARIFACAO`/`AUTOTARIFADO`, `NUMERO SERIE`, `TERMINAL SSTP`,
+`TERMINAL TPCI`, `ATIVACAO`/`DESATIVACAO` all line up with real strings
+here (`IDENT.TÉCNICO`, `TÉCNICO INVÁLIDO`, `TAB.TARIFAÇÃO`, `F.TARIFAÇÃO`,
+`AUTOTARIFADO`, `NUMERO SÉRIE`, `TERMINAL SSTP`, `TERMINAL TPCI`,
+`DESATIVAÇÃO OK`, `INSTALAÇÃO OK`). The phone also calls the CSA "SSTP"
+internally, in every LCD string (`SSTP`, `SSTP OCUPADO`), never "CSA" —
+worth knowing since this repo and the TELEBRÁS standards use "CSA"
+throughout.
+
+The billing-mode names from the old serial-number scheme (`DECADICA`,
+`DTMF`, `INVERSÃO`, `12 KHz`, `AUTO-DDD`, `AUTOTARIFADO`) are all real
+strings here too, plus a `16 KHz` mode I hadn't seen before, which is a
+later revision rather than a contradiction. `PORTA ABERTA` is also a real
+string, matching what I'd noted about the door-open message, and it
+confirms there's no 3-minute alarm timer, a myth I'd already debunked at
+the time.
+
+One genuine gap turned up against the official standard: TELEBRÁS
+245-300-707 §8.21(i) requires the LCD to read `FORA DE SERVIÇO` for the
+out-of-service state, but this firmware actually shows `FORA DE OPERAÇÃO`.
+Harmless, but a real deviation from the letter of the standard.
+
+The one clear mismatch is the display. I'd recorded a 2×16 LCD (Solomon,
+no backlight) on the 5000c/1, while this project's own byte-verified DDRAM
+addressing (`0x80`/`0xC0`, 40-column line stride) makes the 43.17 unit's
+display 2×40. The two units simply differ there.
+
+My old teardown notes on specific part numbers (EPROM, SRAM, modem, RTC),
+crystal frequencies, and PCB switch wiring describe the 5000c/1's physical
+board, not the 43.17's. A firmware dump can't confirm or deny hardware
+like that, so none of it is reproduced here as fact.
 
 ---
 

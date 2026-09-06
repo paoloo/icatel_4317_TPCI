@@ -4,11 +4,10 @@
 > versão canônica). Em caso de divergência, o README em inglês prevalece.
 
 Engenharia reversa de `Icatel-43.17.bin` — o firmware 8051 de um telefone
-público a cartão de 2004 (**TPCI**, *Telefone Público a Cartão Indutivo* —
-terminologia oficial TELEBRÁS, ver [Terminologia
-oficial](#terminologia-oficial-normas-telebrás) abaixo) fabricado pela ICATEL
-— mais uma reimplementação fiel em Python, um motor didático simplificado e
-um simulador de mesa em tkinter com a cara do orelhão de verdade.
+público a cartão de 2004 (TPCI, *Telefone Público a Cartão Indutivo* pela
+norma TELEBRÁS) fabricado pela ICATEL — mais uma reimplementação fiel em
+Python, um motor didático simplificado e um simulador de mesa em tkinter
+com a cara do orelhão de verdade.
 
 Toda a análise foi feita com **radare2** (`r2 -a 8051`); o disassembly
 completo está salvo em
@@ -99,69 +98,66 @@ componentes aproximadas; os valores são literais):
   monofone do gancho abre o menu Contador (UT) / Teste / Instalação descrito
   no fluxograma anexo da norma.
 
-Nada disso é visível apenas pela imagem do firmware — é um cruzamento real
-com a documentação oficial, não uma marca `[INFERENCE]`.
+Nada disso vem da imagem do firmware em si — é um cruzamento com a norma,
+não uma marca `[INFERENCE]`.
 
 ### Cruzamento com uma fonte independente
 
 Eu mesmo fiz, há uns 22 anos, uma pesquisa de hardware/firmware num aparelho
-ICATEL *relacionado, mas diferente* (modelo 5000c/1), quando tive acesso
-físico a um telefone e a um dump de firmware que eu havia rotulado como
-versão "46.17" — não o `43.17` deste projeto. Várias dessas anotações
-antigas de nível de software batem, byte a byte, com
-`icatel_4317_strings.txt`, o que vale registrar já que corrobora minha
-própria observação da época de que os aparelhos ICATEL são "95%+
-similares" entre modelos/revisões de firmware:
+ICATEL relacionado, mas diferente (modelo 5000c/1), com acesso físico a um
+telefone e a um dump de firmware que eu havia rotulado como versão
+"46.17" — não o `43.17` deste projeto. Várias dessas anotações antigas
+batem, byte a byte, com `icatel_4317_strings.txt`, o que confirma algo que
+eu já suspeitava na época: os aparelhos ICATEL são mesmo "95%+ similares"
+entre modelos e revisões de firmware.
 
-* **A ordem do autoteste bate exatamente.** Eu havia anotado uma sequência
-  de autoteste de boot "eeprom, ram, teclado, display, matriz (não
-  identificada), tabela E2P, leitora de cartões, modem", cada uma
-  retornando uma mensagem de OK/falha. O `icatel_4317_strings.txt` tem a
-  mesma sequência, na mesma ordem, com os pares OK/falha correspondentes
-  (`TESTANDO EEPROM`/`EEPROM OK`/`FALHA EEPROM` … `TESTANDO MATRIZ`/`MATRIZ
-  OK`/`FALHA NA MATRIZ` … `TESTANDO E2P TAB` … `TESTANDO LEITORA` …
-  `TESTANDO MODEM`). Na época eu não consegui identificar o que "matriz"
-  testa; esta imagem confirma que a etapa é real, mas também não resolve o
-  alvo exato — provavelmente a matriz de varredura linha/coluna do
-  teclado, distinta da checagem de tecla pressionada `TECLADO`/`TECLE`,
-  mas isso é uma `[INFERENCE]`, não um fato verificado byte a byte.
-* **As strings do menu técnico batem.** O menu técnico acessado pelo botão
-  RESET que eu havia documentado (`ID TECNICO`, `TAB.TARIFACAO`,
-  `F.TARIFACAO`/`AUTOTARIFADO`, `NUMERO SERIE`, `TERMINAL SSTP`,
-  `TERMINAL TPCI`, `ATIVACAO`/`DESATIVACAO`) corresponde a strings reais
-  desta imagem: `IDENT.TÉCNICO`, `TÉCNICO INVÁLIDO`, `TAB.TARIFAÇÃO`,
-  `F.TARIFAÇÃO`, `AUTOTARIFADO`, `NUMERO SÉRIE`, `TERMINAL SSTP`,
-  `TERMINAL TPCI`, `DESATIVAÇÃO OK`, `INSTALAÇÃO OK`.
-* **O próprio aparelho chama o CSA de "SSTP" internamente.** Toda
-  referência ao backend de supervisão nas strings do LCD diz
-  `SSTP`/`SSTP OCUPADO`, nunca `CSA` — vale saber, já que este repositório
-  (e as normas TELEBRÁS) usam "CSA" o tempo todo.
-* **Os nomes dos modos de tarifação existem como strings reais**,
-  condizendo com o conjunto de 4 valores de modo de tarifação que eu havia
-  registrado a partir do esquema de número de série: `DECADICA`, `DTMF`,
-  `INVERSÃO`, `12 KHz`, `AUTO-DDD`, `AUTOTARIFADO`. Esta imagem também tem
-  uma string `16 KHz` que eu não conhecia — uma diferença de revisão, não
-  uma contradição.
-* **A mensagem de porta aberta é real**: `PORTA ABERTA` é uma string
-  literal aqui, condizendo com o que eu já havia anotado na época (abrir a
-  porta com a fechadura ainda travada exibe essa mensagem) — e confirmando
-  que *não existe* um temporizador de alarme de 3 minutos, ao contrário de
-  um "mito" que eu já havia desmentido então.
-* **Uma lacuna de redação frente à norma oficial**: a norma TELEBRÁS
-  245-300-707 §8.21(i) exige o texto exato `FORA DE SERVIÇO` no LCD para o
-  estado fora de operação; a string real deste firmware é
-  `FORA DE OPERAÇÃO` — um desvio real (inofensivo) da letra da norma.
-* **Diferença de hardware, não uma correspondência**: eu havia registrado
-  um LCD 2×16 (Solomon, sem luz de fundo) no 5000c/1; o endereçamento
-  DDRAM deste projeto, verificado byte a byte (`0x80`/`0xC0`, passo de
-  linha de 40 colunas), torna o display da unidade 43.17 um 2×40 — os dois
-  aparelhos ICATEL divergem aqui, não se corroboram.
+A ordem do autoteste de boot é uma das coincidências. Eu tinha anotado
+"eeprom, ram, teclado, display, matriz (não identificada), tabela E2P,
+leitora de cartões, modem", cada etapa retornando uma mensagem de
+OK/falha. O `icatel_4317_strings.txt` tem a mesma sequência, na mesma
+ordem, com os mesmos pares de string (`TESTANDO EEPROM`/`EEPROM
+OK`/`FALHA EEPROM` … `TESTANDO MATRIZ`/`MATRIZ OK`/`FALHA NA MATRIZ` …
+`TESTANDO E2P TAB` … `TESTANDO LEITORA` … `TESTANDO MODEM`). Nunca
+descobri o que "matriz" testa, e esta imagem também não resolve isso;
+meu melhor palpite é a matriz de varredura linha/coluna do teclado,
+separada da checagem de tecla pressionada `TECLADO`/`TECLE`, mas isso é
+uma `[INFERENCE]`, não algo verificado byte a byte.
 
-Minhas anotações antigas de desmonte de hardware (números de peça
-específicos de EPROM/SRAM/modem/RTC, frequências de cristal, fiação de
-switches na placa) descrevem a placa física do *5000c/1* e não são algo
-que um dump de firmware consiga confirmar ou negar para a unidade *43.17*,
-por isso não são reproduzidas aqui como fato.
+As strings do menu técnico também batem. `ID TECNICO`, `TAB.TARIFACAO`,
+`F.TARIFACAO`/`AUTOTARIFADO`, `NUMERO SERIE`, `TERMINAL SSTP`,
+`TERMINAL TPCI`, `ATIVACAO`/`DESATIVACAO` correspondem a strings reais
+desta imagem (`IDENT.TÉCNICO`, `TÉCNICO INVÁLIDO`, `TAB.TARIFAÇÃO`,
+`F.TARIFAÇÃO`, `AUTOTARIFADO`, `NUMERO SÉRIE`, `TERMINAL SSTP`,
+`TERMINAL TPCI`, `DESATIVAÇÃO OK`, `INSTALAÇÃO OK`). O aparelho também
+chama o CSA de "SSTP" internamente, em toda string do LCD (`SSTP`,
+`SSTP OCUPADO`), nunca "CSA" — vale saber, já que este repositório e as
+normas TELEBRÁS usam "CSA" o tempo todo.
+
+Os nomes dos modos de tarifação do antigo esquema de número de série
+(`DECADICA`, `DTMF`, `INVERSÃO`, `12 KHz`, `AUTO-DDD`, `AUTOTARIFADO`)
+também são todos strings reais aqui, mais um modo `16 KHz` que eu não
+conhecia, o que é uma revisão posterior, não uma contradição.
+`PORTA ABERTA` também é uma string real, condizendo com o que eu já havia
+anotado sobre a mensagem de porta aberta, e confirma que não existe
+temporizador de alarme de 3 minutos, um mito que eu já havia desmentido
+na época.
+
+Uma lacuna real apareceu frente à norma oficial: a TELEBRÁS 245-300-707
+§8.21(i) exige que o LCD mostre `FORA DE SERVIÇO` no estado fora de
+operação, mas este firmware mostra `FORA DE OPERAÇÃO`. Inofensivo, mas um
+desvio real da letra da norma.
+
+A única divergência clara é o display. Eu tinha registrado um LCD 2×16
+(Solomon, sem luz de fundo) no 5000c/1, enquanto o endereçamento DDRAM
+deste projeto, verificado byte a byte (`0x80`/`0xC0`, passo de linha de
+40 colunas), torna o display da unidade 43.17 um 2×40. Os dois aparelhos
+simplesmente divergem aí.
+
+Minhas anotações antigas sobre números de peça específicos (EPROM, SRAM,
+modem, RTC), frequências de cristal e fiação de switches na placa
+descrevem a placa física do 5000c/1, não a do 43.17. Um dump de firmware
+não confirma nem nega hardware desse tipo, por isso nada disso é
+reproduzido aqui como fato.
 
 ---
 
