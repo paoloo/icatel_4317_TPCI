@@ -55,7 +55,7 @@ espera" internas do firmware — os ciclos do laço de temporização de
 ### Cruzamento com o hardware: a placa UCI/100
 
 A norma TELEBRÁS 560-400-301 (procedimentos de instalação) define **UCI/100**
-como "a placa de controle do TP a cartão indutivo" — quase certamente a
+como "a placa de controle do TP a cartão indutivo." É quase certamente a
 placa que carrega o 8051 que este projeto reimplementa. O Anexo II dessa
 norma é um desenho de posicionamento dos conectores e jumpers de
 configuração dessa placa, redesenhado aqui em ASCII (posições dos
@@ -98,7 +98,7 @@ componentes aproximadas; os valores são literais):
   monofone do gancho abre o menu Contador (UT) / Teste / Instalação descrito
   no fluxograma anexo da norma.
 
-Nada disso vem da imagem do firmware em si — é um cruzamento com a norma,
+Nada disso vem da imagem do firmware em si: é um cruzamento com a norma,
 não uma marca `[INFERENCE]`.
 
 ### Cruzamento com uma fonte independente
@@ -106,7 +106,7 @@ não uma marca `[INFERENCE]`.
 Eu mesmo fiz, há uns 22 anos, uma pesquisa de hardware/firmware num aparelho
 ICATEL relacionado, mas diferente (modelo 5000c/1), com acesso físico a um
 telefone e a um dump de firmware que eu havia rotulado como versão
-"46.17" — não o `43.17` deste projeto. Várias dessas anotações antigas
+"46.17", não o `43.17` deste projeto. Várias dessas anotações antigas
 batem, byte a byte, com `icatel_4317_strings.txt`, o que confirma algo que
 eu já suspeitava na época: os aparelhos ICATEL são mesmo "95%+ similares"
 entre modelos e revisões de firmware.
@@ -130,8 +130,8 @@ desta imagem (`IDENT.TÉCNICO`, `TÉCNICO INVÁLIDO`, `TAB.TARIFAÇÃO`,
 `F.TARIFAÇÃO`, `AUTOTARIFADO`, `NUMERO SÉRIE`, `TERMINAL SSTP`,
 `TERMINAL TPCI`, `DESATIVAÇÃO OK`, `INSTALAÇÃO OK`). O aparelho também
 chama o CSA de "SSTP" internamente, em toda string do LCD (`SSTP`,
-`SSTP OCUPADO`), nunca "CSA" — vale saber, já que este repositório e as
-normas TELEBRÁS usam "CSA" o tempo todo.
+`SSTP OCUPADO`), nunca "CSA". Vale saber: este repositório e as normas
+TELEBRÁS usam "CSA" o tempo todo.
 
 Os nomes dos modos de tarifação do antigo esquema de número de série
 (`DECADICA`, `DTMF`, `INVERSÃO`, `12 KHz`, `AUTO-DDD`, `AUTOTARIFADO`)

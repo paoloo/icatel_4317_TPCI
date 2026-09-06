@@ -8,7 +8,7 @@ standard, by ICATEL) — plus a faithful Python re-implementation, a didactic
 simplified engine, and a tkinter desktop simulator that looks like the real
 orelhão.
 
-All analysis was done with **radare2** (`r2 -a 8051`) the full disassembly is saved in [Icatel-43.17.r2.asm](Icatel-43.17.r2.asm).
+All analysis was done with **radare2** (`r2 -a 8051`); the full disassembly is saved in [Icatel-43.17.r2.asm](Icatel-43.17.r2.asm).
 
 ---
 
@@ -48,8 +48,9 @@ internal "wait units" — the `0x7B6A` timing-loop ticks (see
 ### Hardware cross-reference: the UCI/100 board
 
 TELEBRÁS standard 560-400-301 (installation procedures) defines **UCI/100**
-as "the TPCI's card control board" — almost certainly the board carrying the
-8051 this project reverse-engineers. Its Annex II is a layout drawing of
+as "the TPCI's card control board." That's almost certainly the board
+carrying the 8051 this project reverse-engineers. Its Annex II is a layout
+drawing of
 that board's connectors and configuration jumpers, redrawn here in ASCII
 (component positions approximate, values verbatim):
 
@@ -89,14 +90,14 @@ that board's connectors and configuration jumpers, redrawn here in ASCII
   handset opens the Counter (UT) / Test / Installation menu described in the
   standard's flowchart annex.
 
-None of it comes from the firmware image itself — it's a cross-check
+None of it comes from the firmware image itself: it's a cross-check
 against the standard, not an `[INFERENCE]`.
 
 ### Cross-reference: old personal research notes
 
 I did my own hardware/firmware research on a related but different ICATEL
 unit (model 5000c/1) about 22 years ago, with physical access to a phone
-and a firmware dump I'd labeled version "46.17" — not this project's
+and a firmware dump I'd labeled version "46.17," not this project's
 `43.17`. Several of those old notes check out byte-for-byte against
 `icatel_4317_strings.txt`, which backs up something I already suspected
 back then: ICATEL units really are "95%+ similar" across models and
@@ -119,9 +120,8 @@ The technician menu strings match too. `ID TECNICO`, `TAB.TARIFACAO`,
 here (`IDENT.TÉCNICO`, `TÉCNICO INVÁLIDO`, `TAB.TARIFAÇÃO`, `F.TARIFAÇÃO`,
 `AUTOTARIFADO`, `NUMERO SÉRIE`, `TERMINAL SSTP`, `TERMINAL TPCI`,
 `DESATIVAÇÃO OK`, `INSTALAÇÃO OK`). The phone also calls the CSA "SSTP"
-internally, in every LCD string (`SSTP`, `SSTP OCUPADO`), never "CSA" —
-worth knowing since this repo and the TELEBRÁS standards use "CSA"
-throughout.
+internally, in every LCD string (`SSTP`, `SSTP OCUPADO`), never "CSA."
+Worth knowing: this repo and the TELEBRÁS standards use "CSA" throughout.
 
 The billing-mode names from the old serial-number scheme (`DECADICA`,
 `DTMF`, `INVERSÃO`, `12 KHz`, `AUTO-DDD`, `AUTOTARIFADO`) are all real
