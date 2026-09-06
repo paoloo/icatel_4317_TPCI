@@ -92,6 +92,62 @@ that board's connectors and configuration jumpers, redrawn here in ASCII
 None of this is visible from the firmware image alone — it is a genuine
 cross-check from the official documentation, not an `[INFERENCE]`.
 
+### Cross-reference: old personal research notes
+
+I did my own hardware/firmware research on a *related but different* ICATEL
+unit (model 5000c/1) about 22 years ago, when I had physical access to a
+phone and a firmware dump I'd labeled version "46.17" — not this project's
+`43.17`. Several of those old software-level notes check out byte-for-byte
+against `icatel_4317_strings.txt`, which is worth recording since it
+corroborates my own old observation that ICATEL units are "95%+ similar"
+across models/firmware revisions:
+
+* **Self-test order matches exactly.** I'd noted a boot self-test sequence
+  "eeprom, ram, teclado, display, matriz (unidentified), tabela E2P, leitora
+  de cartões, modem", each returning an OK/failure message.
+  `icatel_4317_strings.txt` has the identical sequence, in the same order,
+  with matching OK/failure string pairs (`TESTANDO EEPROM`/`EEPROM
+  OK`/`FALHA EEPROM` … `TESTANDO MATRIZ`/`MATRIZ OK`/`FALHA NA MATRIZ` …
+  `TESTANDO E2P TAB` … `TESTANDO LEITORA` … `TESTANDO MODEM`). I couldn't
+  identify what "matriz" tests back then; this image confirms the stage is
+  real but still doesn't resolve its target — most likely the keypad's
+  row/column scan matrix, distinct from the `TECLADO`/`TECLE` keypress
+  check, but that's an `[INFERENCE]`, not a byte-verified fact.
+* **Technician menu strings match.** The RESET-button technician menu I'd
+  documented (`ID TECNICO`, `TAB.TARIFACAO`, `F.TARIFACAO`/`AUTOTARIFADO`,
+  `NUMERO SERIE`, `TERMINAL SSTP`, `TERMINAL TPCI`, `ATIVACAO`/`DESATIVACAO`)
+  lines up with real strings in this image: `IDENT.TÉCNICO`, `TÉCNICO
+  INVÁLIDO`, `TAB.TARIFAÇÃO`, `F.TARIFAÇÃO`, `AUTOTARIFADO`, `NUMERO SÉRIE`,
+  `TERMINAL SSTP`, `TERMINAL TPCI`, `DESATIVAÇÃO OK`, `INSTALAÇÃO OK`.
+* **The phone calls the CSA "SSTP" internally.** Every reference to the
+  supervision backend in the LCD strings says `SSTP`/`SSTP OCUPADO`, never
+  `CSA` — worth knowing since this repo (and the TELEBRÁS standards) use
+  "CSA" throughout.
+* **Billing-mode names exist as real strings**, matching the 4-value
+  tariff-mode set I'd recorded from the serial-number scheme: `DECADICA`,
+  `DTMF`, `INVERSÃO`, `12 KHz`, `AUTO-DDD`, `AUTOTARIFADO`. This image also
+  has a `16 KHz` string I hadn't seen before — a revision difference, not a
+  contradiction.
+* **The door-open message is real**: `PORTA ABERTA` is a verbatim string
+  here, matching what I'd noted back then (opening the door with the lock
+  still engaged displays that message) — and confirming there is *no*
+  3-minute alarm timer, contrary to a "myth" I'd already debunked at the
+  time.
+* **A wording gap versus the official standard**: TELEBRÁS 245-300-707
+  §8.21(i) mandates the exact LCD text `FORA DE SERVIÇO` for the
+  out-of-service state; this firmware's actual string is `FORA DE OPERAÇÃO`
+  — a real (harmless) deviation from the standard's letter.
+* **Hardware difference, not a match**: I'd recorded a 2×16 LCD (Solomon,
+  no backlight) on the 5000c/1; this project's own byte-verified DDRAM
+  addressing (`0x80`/`0xC0`, 40-column line stride) makes the 43.17 unit's
+  display 2×40 — the two ICATEL units differ here, they don't corroborate
+  each other.
+
+My old hardware teardown notes (specific EPROM/SRAM/modem/RTC part numbers,
+crystal frequencies, PCB switch wiring) describe the *5000c/1*'s physical
+board and aren't something a firmware byte dump can confirm or deny for the
+*43.17* unit, so they're deliberately not reproduced here as fact.
+
 ---
 
 ## The firmware in one page
@@ -253,8 +309,6 @@ Linux `sudo apt install python3-tk`). No third-party packages.
   contracts, but not cycle-exact timing or the analog line interface.
 * Crystal (11.0592 MHz) and nominal baud (9600 from TH1=`0xFA`) are `[INFERENCE]`
   — the only standard-rate reload value in the image.
-* The macOS screenshot of the GUI was blocked by OS permissions during
-  development; visual styling was verified via widget-tree inspection.
 
 ---
 

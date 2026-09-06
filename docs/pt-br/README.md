@@ -102,6 +102,67 @@ componentes aproximadas; os valores são literais):
 Nada disso é visível apenas pela imagem do firmware — é um cruzamento real
 com a documentação oficial, não uma marca `[INFERENCE]`.
 
+### Cruzamento com uma fonte independente
+
+Eu mesmo fiz, há uns 22 anos, uma pesquisa de hardware/firmware num aparelho
+ICATEL *relacionado, mas diferente* (modelo 5000c/1), quando tive acesso
+físico a um telefone e a um dump de firmware que eu havia rotulado como
+versão "46.17" — não o `43.17` deste projeto. Várias dessas anotações
+antigas de nível de software batem, byte a byte, com
+`icatel_4317_strings.txt`, o que vale registrar já que corrobora minha
+própria observação da época de que os aparelhos ICATEL são "95%+
+similares" entre modelos/revisões de firmware:
+
+* **A ordem do autoteste bate exatamente.** Eu havia anotado uma sequência
+  de autoteste de boot "eeprom, ram, teclado, display, matriz (não
+  identificada), tabela E2P, leitora de cartões, modem", cada uma
+  retornando uma mensagem de OK/falha. O `icatel_4317_strings.txt` tem a
+  mesma sequência, na mesma ordem, com os pares OK/falha correspondentes
+  (`TESTANDO EEPROM`/`EEPROM OK`/`FALHA EEPROM` … `TESTANDO MATRIZ`/`MATRIZ
+  OK`/`FALHA NA MATRIZ` … `TESTANDO E2P TAB` … `TESTANDO LEITORA` …
+  `TESTANDO MODEM`). Na época eu não consegui identificar o que "matriz"
+  testa; esta imagem confirma que a etapa é real, mas também não resolve o
+  alvo exato — provavelmente a matriz de varredura linha/coluna do
+  teclado, distinta da checagem de tecla pressionada `TECLADO`/`TECLE`,
+  mas isso é uma `[INFERENCE]`, não um fato verificado byte a byte.
+* **As strings do menu técnico batem.** O menu técnico acessado pelo botão
+  RESET que eu havia documentado (`ID TECNICO`, `TAB.TARIFACAO`,
+  `F.TARIFACAO`/`AUTOTARIFADO`, `NUMERO SERIE`, `TERMINAL SSTP`,
+  `TERMINAL TPCI`, `ATIVACAO`/`DESATIVACAO`) corresponde a strings reais
+  desta imagem: `IDENT.TÉCNICO`, `TÉCNICO INVÁLIDO`, `TAB.TARIFAÇÃO`,
+  `F.TARIFAÇÃO`, `AUTOTARIFADO`, `NUMERO SÉRIE`, `TERMINAL SSTP`,
+  `TERMINAL TPCI`, `DESATIVAÇÃO OK`, `INSTALAÇÃO OK`.
+* **O próprio aparelho chama o CSA de "SSTP" internamente.** Toda
+  referência ao backend de supervisão nas strings do LCD diz
+  `SSTP`/`SSTP OCUPADO`, nunca `CSA` — vale saber, já que este repositório
+  (e as normas TELEBRÁS) usam "CSA" o tempo todo.
+* **Os nomes dos modos de tarifação existem como strings reais**,
+  condizendo com o conjunto de 4 valores de modo de tarifação que eu havia
+  registrado a partir do esquema de número de série: `DECADICA`, `DTMF`,
+  `INVERSÃO`, `12 KHz`, `AUTO-DDD`, `AUTOTARIFADO`. Esta imagem também tem
+  uma string `16 KHz` que eu não conhecia — uma diferença de revisão, não
+  uma contradição.
+* **A mensagem de porta aberta é real**: `PORTA ABERTA` é uma string
+  literal aqui, condizendo com o que eu já havia anotado na época (abrir a
+  porta com a fechadura ainda travada exibe essa mensagem) — e confirmando
+  que *não existe* um temporizador de alarme de 3 minutos, ao contrário de
+  um "mito" que eu já havia desmentido então.
+* **Uma lacuna de redação frente à norma oficial**: a norma TELEBRÁS
+  245-300-707 §8.21(i) exige o texto exato `FORA DE SERVIÇO` no LCD para o
+  estado fora de operação; a string real deste firmware é
+  `FORA DE OPERAÇÃO` — um desvio real (inofensivo) da letra da norma.
+* **Diferença de hardware, não uma correspondência**: eu havia registrado
+  um LCD 2×16 (Solomon, sem luz de fundo) no 5000c/1; o endereçamento
+  DDRAM deste projeto, verificado byte a byte (`0x80`/`0xC0`, passo de
+  linha de 40 colunas), torna o display da unidade 43.17 um 2×40 — os dois
+  aparelhos ICATEL divergem aqui, não se corroboram.
+
+Minhas anotações antigas de desmonte de hardware (números de peça
+específicos de EPROM/SRAM/modem/RTC, frequências de cristal, fiação de
+switches na placa) descrevem a placa física do *5000c/1* e não são algo
+que um dump de firmware consiga confirmar ou negar para a unidade *43.17*,
+por isso não são reproduzidas aqui como fato.
+
 ---
 
 ## O firmware em uma página
@@ -282,9 +343,6 @@ Dependências: Python ≥ 3.9 com tkinter (padrão no macOS/Windows; no Linux
 * O cristal (11,0592 MHz) e o baud nominal (9600, de TH1=`0xFA`) são
   `[INFERENCE]` — o único valor de recarga de taxa padrão presente na
   imagem.
-* A captura de tela da GUI no macOS foi bloqueada por permissões do sistema
-  durante o desenvolvimento; a estilização visual foi verificada por
-  inspeção da árvore de widgets.
 
 ---
 
